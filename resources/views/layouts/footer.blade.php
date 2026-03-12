@@ -1,0 +1,1 @@
+© Copyright 2026 Tim Dosen dan Asprak D3 SIA
