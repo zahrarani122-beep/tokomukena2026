@@ -14,9 +14,15 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    //return view('welcome');
+    //return view('login');
+    return redirect('/login');
 });
 
+// untuk contoh perusahaan
+use App\Http\Controllers\PerusahaanController;
+Route::resource('perusahaan', PerusahaanController::class);
+Route::get('/perusahaan/destroy/{id}', [PerusahaanController::class,'destroy']);
 
 // contoh route yang mengarah ke konten statis
 Route::get('/selamat', function () {
@@ -36,3 +42,23 @@ Route::get('/contoh2', [App\Http\Controllers\Contoh2Controller::class,'show']);
 
 // contoh route coa
 Route::get('/coa', [App\Http\Controllers\CoaController::class,'index']);
+
+// login customer
+Route::get('/depan', [App\Http\Controllers\KeranjangController::class, 'daftarbarang'])->middleware('customer')->name('depan');
+Route::get('/login', [App\Http\Controllers\AuthController::class, 'showLoginForm'])->name('login');
+Route::post('/login', [App\Http\Controllers\AuthController::class, 'login']);
+Route::get('/logout', function () {
+    Auth::logout();
+    request()->session()->invalidate();
+    request()->session()->regenerateToken();
+    return redirect('/login');
+})->name('logout');
+
+// untuk ubah password
+Route::get('/ubahpassword', [App\Http\Controllers\AuthController::class, 'ubahpassword'])
+    ->middleware('customer')
+    ->name('ubahpassword');
+Route::post('/prosesubahpassword', [App\Http\Controllers\AuthController::class, 'prosesubahpassword'])
+    ->middleware('customer')
+;
+// prosesubahpassword

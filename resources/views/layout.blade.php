@@ -1,17 +1,5 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    @include('layouts/header')
-</head>
-<body>
-    Selamat Datang {{ $nama }} <hr>
+@include('layouts/header')
 
-    <!-- Masukkan body dari layouts\body.blade.php -->
-     @include('layouts.body')
-     
-    <hr>
+@yield('konten')
 
-    <!-- Masukkan footer -->
-     @include('layouts.footer')
-</body>
-</html>
+@include('layouts/footer')

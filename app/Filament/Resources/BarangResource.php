@@ -12,7 +12,6 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-
 // tambahan
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Select;
@@ -21,61 +20,62 @@ use Filament\Forms\Components\FileUpload; //untuk tipe file
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ImageColumn;
 
+
 class BarangResource extends Resource
 {
     protected static ?string $model = Barang::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
-   public static function form(Form $form): Form
-{
-    return $form
-        ->schema([
-            Grid::make(1)->schema([
-
-                TextInput::make('no_kamar')
-                    ->label('No Kamar')
-                    ->placeholder('KMR-001')
-                    ->required(),
-
-                TextInput::make('nama_kamar')
-                    ->label('Nama Kamar')
-                    ->required(),
-
-                TextInput::make('lantai_kamar')
-                    ->label('Lantai Kamar')
-                    ->numeric()
-                    ->required(),
-
-                FileUpload::make('foto_kamar')
-                    ->label('Foto Kamar')
-                    ->image()
-                    ->directory('foto_kamar')
-                    ->required(),
-
-                TextInput::make('harga_kamar')
-                    ->label('Harga Kamar')
-                    ->numeric()
-                    ->required(),
-
-                Select::make('status_kamar')
-                    ->label('Status Kamar')
-                    ->options([
-                        'Kosong' => 'Kosong',
-                        'Terisi' => 'Terisi',
-                    ])
-                    ->required(),
-
-            ])
-        ]);
-}
+    public static function form(Form $form): Form
+    {
+        return $form
+            ->schema([
+                //
+                TextInput::make('kode_barang')
+                    ->default(fn () => Barang::getKodeBarang()) // Ambil default dari method getKodeBarang
+                    ->label('Kode Barang')
+                    ->required()
+                    ->readonly() // Membuat field menjadi read-only
+                ,
+                TextInput::make('nama_barang')
+                    ->required()
+                    ->placeholder('Masukkan nama barang') // Placeholder untuk membantu pengguna
+                ,
+                TextInput::make('harga_barang')
+                    ->required()
+                    ->minValue(0) // Nilai minimal 0 (opsional jika tidak ingin ada harga negatif)
+                    ->reactive() // Menjadikan input reaktif terhadap perubahan
+                    ->extraAttributes(['id' => 'harga-barang']) // Tambahkan ID untuk pengikatan JavaScript
+                    ->placeholder('Masukkan harga barang') // Placeholder untuk membantu pengguna
+                    ->live()
+                    ->afterStateUpdated(fn ($state, callable $set) => 
+                        $set('harga_barang', number_format((int) str_replace('.', '', $state), 0, ',', '.'))
+                      )
+                ,
+                FileUpload::make('foto')
+                    ->directory('foto')
+                    ->required()
+                ,
+                TextInput::make('stok')
+                    ->required()
+                    ->placeholder('Masukkan stok barang') // Placeholder untuk membantu pengguna
+                    ->minValue(0)
+                ,
+                TextInput::make('rating')
+                    ->required()
+                    ->placeholder('Masukkan rating barang') // Placeholder untuk membantu pengguna
+                    ->minValue(0)
+                ,
+            ]);
+    }
 
     public static function table(Table $table): Table
     {
         return $table
             ->columns([
                 //
-                TextColumn::make('kode_barang')
+                 TextColumn::make('kode_barang')
                     ->searchable(),
                 // agar bisa di search
                 TextColumn::make('nama_barang')
@@ -95,7 +95,10 @@ class BarangResource extends Resource
                 //
             ])
             ->actions([
+               // Tables\Actions\EditAction::make(),
+                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

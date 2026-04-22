@@ -13,12 +13,12 @@ return new class extends Migration
     {
         Schema::create('kamars', function (Blueprint $table) {
             $table->id();
-           $table->string('no_kamar');
+            $table->string('no_kamar');
             $table->string('nama_kamar');
             $table->integer('lantai_kamar');
-        $table->string('foto_kamar');
-        $table->integer('harga_kamar');
-        $table->enum('status_kamar', ['Kosong', 'Terisi']);
+            $table->string('foto_kamar');
+            $table->integer('harga_kamar');
+            $table->enum('status_kamar', ['Kosong', 'Terisi']);
             $table->timestamps();
         });
     }
