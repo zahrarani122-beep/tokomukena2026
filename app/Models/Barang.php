@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-// tambahan untuk DB
+// tambahan
 use Illuminate\Support\Facades\DB;
 
 class Barang extends Model
@@ -39,5 +39,16 @@ class Barang extends Model
     {
         // Hapus koma (,) dari nilai sebelum menyimpannya ke database
         $this->attributes['harga_barang'] = str_replace('.', '', $value);
+    }
+    
+    // Relasi dengan tabel relasi many to many nya
+    public function penjualanBarang()
+    {
+        return $this->hasMany(PenjualanBarang::class, 'barang_id');
+    }
+ // Relasi dengan tabel relasi many to many nya
+    public function pembelianBarang()
+    {
+        return $this->hasMany(PembelianBarang::class, 'barang_id');
     }
 }
