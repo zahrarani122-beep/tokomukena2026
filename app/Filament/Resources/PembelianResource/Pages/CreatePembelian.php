@@ -52,10 +52,10 @@ class CreatePembelian extends CreateRecord
                 if (!$barang) continue;
             }
 
-            // ✅ Tambah stok HANYA SEKALI
-            $barang->increment('stok', $item['jml']);
+            // ✅ TIDAK perlu increment manual di sini
+            // Stok otomatis bertambah via PembelianBarang::booted() -> static::created()
 
-            // Simpan detail pembelian
+            // Simpan detail pembelian (ini yang trigger increment stok otomatis)
             PembelianBarang::create([
                 'pembelian_id' => $this->record->id,
                 'barang_id'    => $barang->id,
