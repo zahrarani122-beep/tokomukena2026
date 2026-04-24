@@ -24,41 +24,36 @@ class CreatePembelian extends CreateRecord
     {
         $total = 0;
 
-        // ✅ GANTI 'detail' → 'items' (sesuai nama repeater di form)
         foreach ($this->data['items'] ?? [] as $item) {
 
-           // CASE 1: Barang Baru
-if (($item['is_barang_baru'] ?? '0') === '1' && !empty($item['nama_barang_baru'])) {
-    
-    // ✅ Ambil foto, FileUpload mengembalikan array
-    $foto = 'default.png';
-    if (!empty($item['foto_baru'])) {
-        $foto = is_array($item['foto_baru']) 
-            ? array_values($item['foto_baru'])[0]  // ambil elemen pertama jika array
-            : $item['foto_baru'];
-    }
+            // CASE 1: Barang Baru
+            if (($item['is_barang_baru'] ?? '0') === '1' && !empty($item['nama_barang_baru'])) {
 
-    $barang = Barang::create([
-        'kode_barang'  => Barang::getKodeBarang(),
-        'nama_barang'  => $item['nama_barang_baru'],
-        'harga_barang' => $item['harga_jual'],
-        'stok'         => 0,
-        'foto'         => $foto, // ✅ sudah dikonversi ke string
-        'rating'       => $item['rating_baru'] ?? 0,
-    ]);
+                // Ambil foto, FileUpload mengembalikan array
+                $foto = 'default.png';
+                if (!empty($item['foto_baru'])) {
+                    $foto = is_array($item['foto_baru'])
+                        ? array_values($item['foto_baru'])[0]
+                        : $item['foto_baru'];
+                }
 
-// CASE 2: Barang Lama
-} else {
-    $barang = Barang::find($item['barang_id']);
-    if (!$barang) continue;
-}
+                $barang = Barang::create([
+                    'kode_barang'  => Barang::getKodeBarang(),
+                    'nama_barang'  => $item['nama_barang_baru'],
+                    'harga_barang' => $item['harga_jual'],
+                    'stok'         => 0,
+                    'foto'         => $foto,
+                    'rating'       => $item['rating_baru'] ?? 0,
+                ]);
 
-// ✅ Hanya tambah stok, TIDAK update harga untuk barang lama
-$barang->increment('stok', $item['jml']);
+            // CASE 2: Barang Lama
+            } else {
+                $barang = Barang::find($item['barang_id']);
+                if (!$barang) continue;
+            }
 
-            // Update stok dan harga
+            // ✅ Tambah stok HANYA SEKALI
             $barang->increment('stok', $item['jml']);
-            
 
             // Simpan detail pembelian
             PembelianBarang::create([
@@ -73,7 +68,7 @@ $barang->increment('stok', $item['jml']);
             $total += $item['jml'] * $item['harga_beli'];
         }
 
-        // ✅ Update tagihan (berlaku untuk lunas DAN hutang)
+        // Update tagihan
         $this->record->update(['tagihan' => $total]);
 
         Notification::make()
